@@ -5,8 +5,8 @@
 #include "Channel.h"
 #include "EventLoop.h"
 
-#include "poll.h"
-#include "iostream"
+#include <poll.h>
+#include <iostream>
 
 
 const int Channel::kNoneEvent = 0;
@@ -50,4 +50,36 @@ void Channel::handleEvent(Timestamp receiveTime)
         if (writeCallback_) writeCallback_();
     }
     eventHandleing = false;
+}
+
+std::string Channel::reventsToString() const
+{
+    return eventsToString(fd_, revents_);
+}
+
+std::string Channel::eventsToString() const
+{
+    return eventsToString(fd_, events_);
+}
+
+std::string Channel::eventsToString(int fd, int ev)
+{
+    std::ostringstream oss;
+    oss << fd << ": ";
+    if (ev & POLLIN)
+        oss << "IN ";
+    if (ev & POLLPRI)
+        oss << "PRI ";
+    if (ev & POLLOUT)
+        oss << "OUT ";
+    if (ev & POLLHUP)
+        oss << "HUP ";
+    if (ev & POLLRDHUP)
+        oss << "RDHUP ";
+    if (ev & POLLERR)
+        oss << "ERR ";
+    if (ev & POLLNVAL)
+        oss << "NVAL ";
+
+    return oss.str();
 }

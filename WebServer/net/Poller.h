@@ -11,7 +11,6 @@
 #include "Timestamp.h"
 #include "EventLoop.h"
 
-struct pollfd;
 
 class Channel;
 
@@ -19,31 +18,30 @@ class Poller : noncopyable {
 public:
     typedef std::vector<Channel*> ChannelList;
     Poller(EventLoop* loop);
-    ~Poller();
+    virtual ~Poller();
 
 //poll event时间，在loop中肯定会被调用
-    Timestamp poll(int timeoutMs, ChannelList* activeChannels);
+    virtual Timestamp poll(int timeoutMs, ChannelList* activeChannels) = 0;
 
     // 改变感兴趣的IO时间，loop thread中必须调用
-    void updateChannel(Channel* channel);
+    virtual void updateChannel(Channel* channel) = 0;
 
     //removeChannel, 当它毁灭时，必须在loop thread
-    void removeChannel(Channel* channel);
+    virtual void removeChannel(Channel* channel) = 0;
+
+    virtual bool hasChannel(Channel* channel) const;
+
+    static Poller* newDefaultPoller(EventLoop* loop);
     //
-    void assertInLoopThread() { ownerLoop_ -> assertInLoopThread(); }
+    virtual void assertInLoopThread()  const { ownerLoop_ -> assertInLoopThread(); }
 
 
+protected:
+    typedef std::map<int, Channel*> ChannelMap;
+    ChannelMap channels_;
 
 private:
-    void fillActiveChannels(int numEvents, ChannelList* activeChannels) const;
-
-    typedef std::vector<struct pollfd> PollFdList;
-    //fd到channel的映射
-    typedef std::map<int, Channel*> ChannelMap;
-
     EventLoop* ownerLoop_;
-    PollFdList pollfds_;
-    ChannelMap channels_;
 
 };
 

@@ -51,9 +51,16 @@ public:
      int index() { return index_; }
     void set_index(int idx) { index_ = idx; }
 
+    // for debug
+    std::string reventsToString() const;
+    std::string eventsToString() const;
+
     EventLoop* ownerLoop() { return loop_; }
 
 private:
+    static std::string eventsToString(int fd, int ev);
+
+
     void update();
     static const int kNoneEvent;
     static const int kReadEvent;
