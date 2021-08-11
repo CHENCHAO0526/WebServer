@@ -7,6 +7,7 @@
 
 #include <poll.h>
 #include <iostream>
+#include <sstream>
 
 
 const int Channel::kNoneEvent = 0;

@@ -33,12 +33,17 @@ void setNonBlockAndCloseOnExec(int sockfd)
     flags |= O_NONBLOCK;
     int ret = ::fcntl(sockfd, F_SETFL, flags);
     // FIXME check
-
+    if(ret == -1) {
+        std::cout << "SYSERR in setNonBlockAndCloseOnExec" <<std::endl;
+    }
     // close-on-exec
     flags = ::fcntl(sockfd, F_GETFD, 0);
     flags |= FD_CLOEXEC;
     ret = ::fcntl(sockfd, F_SETFD, flags);
     // FIXME check
+    if(ret == -1) {
+        std::cout << "SYSERR in setNonBlockAndCloseOnExec" <<std::endl;
+    }
 }
 
 

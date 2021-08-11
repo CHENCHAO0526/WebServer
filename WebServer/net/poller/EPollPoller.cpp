@@ -76,6 +76,27 @@ Timestamp EPollPoller::poll(int timeoutMs, ChannelList* activeChannels) {
 }
 
 
+//epoll_wait返回后将就绪的文件描述符添加到参数的激活队列中
+void EPollPoller::fillActiveChannels(int numEvents,
+                                     ChannelList* activeChannels) const
+{
+    assert(implicit_cast<size_t>(numEvents) <= events_.size());
+    for (int i = 0; i < numEvents; ++i)
+    {
+        //ptr是epoll event里 epoll_event.data.union(ptr), 一般用来指定与fd相关的用户数据
+        Channel* channel = static_cast<Channel*>(events_[i].data.ptr);
+#ifndef NDEBUG
+        int fd = channel->fd();
+        ChannelMap::const_iterator it = channels_.find(fd);
+        assert(it != channels_.end());
+        assert(it->second == channel);
+#endif
+        channel->set_revents(events_[i].events);
+        activeChannels->push_back(channel);
+    }
+}
+
+
 //封装对epoll_event的属性控制
 void EPollPoller::updateChannel(Channel* channel) {
     Poller::assertInLoopThread();
