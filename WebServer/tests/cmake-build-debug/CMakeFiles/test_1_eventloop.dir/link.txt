@@ -1,1 +1,0 @@
-/usr/bin/c++  -g  -rdynamic CMakeFiles/test_1_eventloop.dir/test_1_eventloop.cpp.o  -o test_1_eventloop  -llibserver_base 
