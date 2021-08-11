@@ -1,0 +1,47 @@
+//
+// Created by cc on 8/5/21.
+//
+
+#ifndef CC_WEBSERVER_MUDUO_TIMER_H
+#define CC_WEBSERVER_MUDUO_TIMER_H
+
+#include "noncopyable.h"
+#include "Timestamp.h"
+#include "Callbacks.h"
+#include "Atomic.h"
+
+//一个计时器的器，构成是多久过期，过期后执行什么函数
+class Timer : noncopyable {
+public:
+    Timer(const TimerCallback& cb, Timestamp when, double interval)
+    : callback_(cb),
+      expiration_(when),
+      interval_(interval),
+      repeat_(interval_ > 0.0),
+      sequence_(s_numCreated_.incrementAndGet())
+    { }
+
+    void run() const
+    {
+        callback_();
+    }
+
+    Timestamp expiration() const  { return expiration_; }
+    bool repeat() const { return repeat_; }
+    int64_t sequence() const { return sequence_; }
+    void restart(Timestamp now);
+
+private:
+    const TimerCallback callback_;
+    Timestamp expiration_;
+    const double interval_;
+    const bool  repeat_;
+    const int64_t sequence_;
+    static AtomicInt64 s_numCreated_;
+};
+
+
+
+#endif //CC_WEBSERVER_MUDUO_TIMER_H
+
+
